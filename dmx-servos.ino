@@ -60,12 +60,15 @@ void setup() {
 			dmx_address = lowbyte | (highbyte << 8 );
 		} 
   	};
+  	if (dmx_address < 1) dmx_address = 506;
+	if (dmx_address > 506) dmx_address = 1;
 	int_to_display(dmx_address);		// write dmx adress to display buffer 
 #endif
 	
+	
+	
 	DMXSerial.init(DMXReceiver);
 	time_since_last_dmx_packet = DMXSerial.noDataSince();
-	delay(1000);
 
 	for (char i = 0; i < 6; i++) {
 		if (modes[i] == SERVO) {
@@ -74,11 +77,15 @@ void setup() {
 				myservo[i].writeMicroseconds(out_buffer[i]);
 		}
 	}
+	
+	delay(1000);
 
-	//pullups on pushbuttons. arduino style
-	pinMode(13,INPUT_PULLUP);
-	pinMode(A0,INPUT_PULLUP);
-
+	//pullups on pushbuttons. PF7 and PB3
+	PORTF |= ( 1 << 7 ); DDRF &= ~( 1 << 7 );
+	PORTB |= ( 1 << 3 ); DDRB &= ~( 1 << 3 );
+	pinMode(13, OUTPUT);	// LED on pin 13
+	
+	
 	// set up timed events
 #if CAN_CHANGE_DMX_ADDRESS
 	t.every (1, update_display);
@@ -118,7 +125,8 @@ void check_dmx() {
 	i= 0;
 	
 	if (time_since_last_dmx_packet < 1000) {
-
+		digitalWrite(13,HIGH);
+	
 		unsigned int temp;
 		
 		for (i = 0; i < 6; i++) {
@@ -136,6 +144,8 @@ void check_dmx() {
 			
 			out_buffer[i] = temp;
 		}
+	} else {
+			digitalWrite(13,LOW);
 	}
 
 }
@@ -153,8 +163,9 @@ void store_dmx_address(void) {
 void up_or_down(unsigned char state) {
 	if (state == 0) return;
 	if (state & (1 << 0)) dmx_address--; 
-	else if (state & (1 << 1)) dmx_address++; 
-	dmx_address %= 512;
+	else if (state & (1 << 1)) dmx_address++;
+	if (dmx_address < 1) dmx_address = 506;
+	if (dmx_address > 506) dmx_address = 1;
 	int_to_display(dmx_address);
 }
 
@@ -167,9 +178,11 @@ void check_btns(void) {
 	static unsigned long last_buttonpress;
 	unsigned long elapsed_time;
 	
-	// buttons are on pin A0 (PF7) and D13 (PC7)
-	button_state = ((PINF & (1 << 7)) >> 7);	
-	button_state |= ((PINC & (1 << 7)) >> 6);
+	// buttons are on pin A0 (PF7) and MISO (PB3)
+	button_state = ((PINF & (1 << 7)) >> 6);	
+	button_state |= ((PINB & (1 << 3)) >> 3);
+		
+
 	button_state = ~button_state & B00000011;
 	if (last_buttonpress == 0) {  // never pressed a button
 		last_button_state = button_state;
