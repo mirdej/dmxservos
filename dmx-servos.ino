@@ -13,7 +13,7 @@
 #define	CAN_CHANGE_DMX_ADDRESS	1
 #define DISPLAY_BRIGHTNESS		14			// values: 0 - 16
 
-
+const char 	out_pins[] = 		{	3		,	5		,	6		,	9		,	10		,	11		};		// Servos are on pins 3,5,6 9,10,11
 const char modes [] =  			{	SERVO	, 	SERVO	, 	SERVO	, 	PWM		, 	PWM		, 	PWM		};
 const int lows [] = 			{	700		,	1000	,	1000	,	1000	,	1000	,	1000	};
 const int highs [] = 			{	2290	,	2000	,	2000	,	2000	,	2000	,	2000	};
