@@ -25,8 +25,6 @@ const char smooth [] = 			{	4		,	0		,	3		,	16		,	0		,	0		};
 // ================================================================================================
 //																			DONT CHANGE BELOW...
 
-const char 		out_pins[] = {3,5,6,9,10,11};		// Servos are on pins 3,5,6 9,10,11
-
 unsigned int 	dmx_address;
 unsigned char 	display[3];
 float			dmx_buffer[6];
